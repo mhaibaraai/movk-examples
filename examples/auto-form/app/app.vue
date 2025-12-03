@@ -52,11 +52,11 @@ const form = ref<Partial<Schema>>({})
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   toast.add({
-    title: '提交成功',
+    title: '提交成功(event.data)',
     color: 'success',
     description: JSON.stringify(event.data, null, 2)
   })
-  console.log(event.data)
+  console.log('form.value:', form.value)
 }
 </script>
 
