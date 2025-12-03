@@ -1,0 +1,29 @@
+{
+  "name": "movk-examples",
+  "private": true,
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "clean": "tsx .scripts/rm.ts",
+    "typecheck": "node .scripts/typecheck.mjs"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "^3.1.1",
+    "@nuxt/eslint": "^1.11.0",
+    "@types/node": "^22.16.0",
+    "consola": "^3.4.2",
+    "eslint": "^9.38.0",
+    "tinyexec": "^1.0.2",
+    "tinyglobby": "^0.2.15",
+    "typescript": "^5.9.3",
+    "tsx": "^4.21.0",
+    "vue-tsc": "^3.1.5"
+  },
+  "resolutions": {
+    "@nuxt/kit": "^4.2.1",
+    "nuxt": "^4.2.1"
+  },
+  "packageManager": "pnpm@10.24.0"
+}
