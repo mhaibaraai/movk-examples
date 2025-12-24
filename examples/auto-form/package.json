@@ -9,10 +9,10 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
-    "@movk/nuxt": "^0.1.1",
-    "@nuxt/ui": "^4.2.1",
-    "nuxt": "^4.2.1",
-    "tailwindcss": "^4.1.17",
+    "@movk/nuxt": "^1.0.0",
+    "@nuxt/ui": "^4.3.0",
+    "nuxt": "^4.2.2",
+    "tailwindcss": "^4.1.18",
     "zod": "^4.1.13"
   }
 }
