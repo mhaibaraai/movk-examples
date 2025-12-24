@@ -1,0 +1,17 @@
+{
+  "name": "api-upload",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@movk/nuxt": "^1.0.0",
+    "@nuxt/ui": "^4.3.0",
+    "nuxt": "^4.2.2",
+    "tailwindcss": "^4.1.18"
+  }
+}
