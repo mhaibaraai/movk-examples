@@ -1,32 +1,26 @@
 <script setup lang="ts">
-interface User {
-  id: string
-  email: string
-  name: string
-  role: string
-  bio?: string
-  joinedAt?: string
-  lastLogin?: string
-}
+const config = useRuntimeConfig()
+const { user, isAuthenticated, login, logout, fetchUserInfo, initAuth } = useAuth()
 
-const email = ref('admin@example.com')
-const password = ref('password')
+const email = ref(config.public.defaultEmail)
+const password = ref(config.public.defaultPassword)
 const isLoggingIn = ref(false)
+const errorMessage = ref('')
 
-const { user, login, logout, fetchSession } = useApiAuth<User>()
-
-const { data: profile, status: profileStatus, execute: fetchProfile } = useClientApiFetch<User>('/api/profile', {
-  immediate: false
+onMounted(() => {
+  initAuth()
 })
 
 async function handleLogin() {
   isLoggingIn.value = true
+  errorMessage.value = ''
   try {
     await login({
       email: email.value,
       password: password.value
     })
-    await fetchProfile()
+  } catch (error: any) {
+    errorMessage.value = error.message || '登录失败,请检查邮箱和密码'
   } finally {
     isLoggingIn.value = false
   }
@@ -36,12 +30,12 @@ async function handleLogout() {
   await logout()
 }
 
-async function handleRefreshSession() {
-  await fetchSession()
-}
-
-async function handleRefreshProfile() {
-  await fetchProfile()
+async function handleRefreshUserInfo() {
+  try {
+    await fetchUserInfo()
+  } catch (error: any) {
+    console.error('刷新用户信息失败:', error)
+  }
 }
 </script>
 
@@ -49,29 +43,37 @@ async function handleRefreshProfile() {
   <UApp>
     <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div class="max-w-4xl mx-auto space-y-6">
-        <UCard v-if="!user">
+        <UCard v-if="!isAuthenticated">
           <template #header>
             <h2 class="text-xl font-semibold">
-              Login
+              用户登录
             </h2>
           </template>
 
           <div class="space-y-4">
-            <UFormField label="Email">
+            <UAlert
+              v-if="errorMessage"
+              color="error"
+              variant="subtle"
+              icon="i-lucide-alert-circle"
+              :title="errorMessage"
+            />
+
+            <UFormField label="邮箱">
               <UInput
                 v-model="email"
                 icon="i-lucide-mail"
                 type="email"
-                placeholder="admin@example.com"
+                :placeholder="config.public.defaultEmail"
               />
             </UFormField>
 
-            <UFormField label="Password">
+            <UFormField label="密码">
               <UInput
                 v-model="password"
                 icon="i-lucide-lock"
                 type="password"
-                placeholder="password"
+                placeholder="请输入密码"
               />
             </UFormField>
 
@@ -81,7 +83,7 @@ async function handleRefreshProfile() {
               block
               @click="handleLogin"
             >
-              Login
+              登录
             </UButton>
           </div>
 
@@ -90,18 +92,18 @@ async function handleRefreshProfile() {
               color="primary"
               variant="subtle"
               icon="i-lucide-info"
-              title="Demo Credentials"
-              description="admin@example.com / password"
+              title="默认测试账号"
+              :description="`${config.public.defaultEmail} / ${config.public.defaultPassword}`"
             />
           </template>
         </UCard>
 
-        <template v-else>
+        <template v-else-if="user">
           <UCard>
             <template #header>
               <div class="flex items-center justify-between">
                 <h2 class="text-xl font-semibold">
-                  Session
+                  用户信息
                 </h2>
                 <UButton
                   icon="i-lucide-log-out"
@@ -109,7 +111,7 @@ async function handleRefreshProfile() {
                   variant="outline"
                   @click="handleLogout"
                 >
-                  Logout
+                  退出登录
                 </UButton>
               </div>
             </template>
@@ -117,22 +119,23 @@ async function handleRefreshProfile() {
             <div class="space-y-4">
               <div class="flex items-center gap-4">
                 <UAvatar
-                  :alt="user.name"
+                  :src="user.avatar"
+                  :alt="user.nickname"
                   size="xl"
                 />
                 <div>
                   <div class="text-lg font-semibold">
-                    {{ user.name }}
+                    {{ user.nickname }}
                   </div>
                   <div class="text-sm text-gray-500">
                     {{ user.email }}
                   </div>
                   <UBadge
-                    :color="user.role === 'admin' ? 'primary' : 'neutral'"
+                    :color="user.status === 'ACTIVE' ? 'success' : 'neutral'"
                     variant="subtle"
                     class="mt-1"
                   >
-                    {{ user.role }}
+                    {{ user.status }}
                   </UBadge>
                 </div>
               </div>
@@ -142,18 +145,66 @@ async function handleRefreshProfile() {
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <div class="text-sm text-gray-500">
-                    User ID
+                    用户 ID
                   </div>
-                  <div class="font-medium">
+                  <div class="font-medium text-xs">
                     {{ user.id }}
                   </div>
                 </div>
                 <div>
                   <div class="text-sm text-gray-500">
-                    Role
+                    用户名
                   </div>
                   <div class="font-medium">
-                    {{ user.role }}
+                    {{ user.username }}
+                  </div>
+                </div>
+                <div>
+                  <div class="text-sm text-gray-500">
+                    手机号
+                  </div>
+                  <div class="font-medium">
+                    {{ user.phone }}
+                  </div>
+                </div>
+                <div>
+                  <div class="text-sm text-gray-500">
+                    部门
+                  </div>
+                  <div class="font-medium">
+                    {{ user.deptName }}
+                  </div>
+                </div>
+                <div>
+                  <div class="text-sm text-gray-500">
+                    性别
+                  </div>
+                  <div class="font-medium">
+                    {{ user.gender }}
+                  </div>
+                </div>
+                <div>
+                  <div class="text-sm text-gray-500">
+                    上次登录 IP
+                  </div>
+                  <div class="font-medium">
+                    {{ user.loginIp }}
+                  </div>
+                </div>
+                <div class="col-span-2">
+                  <div class="text-sm text-gray-500">
+                    上次登录时间
+                  </div>
+                  <div class="font-medium text-xs">
+                    {{ user.loginDate }}
+                  </div>
+                </div>
+                <div class="col-span-2">
+                  <div class="text-sm text-gray-500">
+                    创建时间
+                  </div>
+                  <div class="font-medium text-xs">
+                    {{ user.createdAt }}
                   </div>
                 </div>
               </div>
@@ -162,64 +213,10 @@ async function handleRefreshProfile() {
                 icon="i-lucide-refresh-cw"
                 variant="outline"
                 block
-                @click="handleRefreshSession"
+                @click="handleRefreshUserInfo"
               >
-                Refresh Session
+                刷新用户信息
               </UButton>
-            </div>
-          </UCard>
-
-          <UCard>
-            <template #header>
-              <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold">
-                  Profile
-                </h2>
-                <UBadge
-                  :color="profileStatus === 'pending' ? 'neutral' : profile ? 'success' : 'error'"
-                  variant="subtle"
-                >
-                  {{ profileStatus }}
-                </UBadge>
-              </div>
-            </template>
-
-            <div class="space-y-4">
-              <UButton
-                icon="i-lucide-user"
-                :loading="profileStatus === 'pending'"
-                @click="handleRefreshProfile"
-              >
-                Fetch Profile
-              </UButton>
-
-              <UCard
-                v-if="profile"
-                :ui="{ body: { padding: 'p-4' } }"
-              >
-                <div class="space-y-3">
-                  <div class="flex justify-between">
-                    <span class="text-gray-500">Name</span>
-                    <span class="font-medium">{{ profile.name }}</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span class="text-gray-500">Email</span>
-                    <span class="font-medium">{{ profile.email }}</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span class="text-gray-500">Bio</span>
-                    <span class="font-medium">{{ profile.bio }}</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span class="text-gray-500">Joined</span>
-                    <span class="font-medium">{{ profile.joinedAt }}</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span class="text-gray-500">Last Login</span>
-                    <span class="font-medium text-xs">{{ profile.lastLogin }}</span>
-                  </div>
-                </div>
-              </UCard>
             </div>
           </UCard>
         </template>

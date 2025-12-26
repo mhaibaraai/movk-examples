@@ -7,7 +7,9 @@ const { afz } = useAutoForm()
 
 const schema = afz.object({
   profile: afz.object({
-    name: afz.string().min(2).meta({ label: '姓名' }),
+    name: afz.string({
+      controlProps: {}
+    }).min(2).meta({ label: '姓名' }),
     email: afz.email().meta({ label: '邮箱' }),
     bio: afz.string().optional().meta({ label: '简介' })
   }).meta({ label: '个人资料' }),
