@@ -25,5 +25,5 @@
     "@nuxt/kit": "^4.2.1",
     "nuxt": "^4.2.1"
   },
-  "packageManager": "pnpm@10.24.0"
+  "packageManager": "pnpm@10.28.0"
 }
