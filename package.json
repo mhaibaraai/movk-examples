@@ -12,7 +12,7 @@
   "devDependencies": {
     "@nuxt/devtools": "^3.1.1",
     "@nuxt/eslint": "^1.11.0",
-    "@types/node": "^22.16.0",
+    "@types/node": "^24.0.0",
     "consola": "^3.4.2",
     "eslint": "^9.38.0",
     "tinyexec": "^1.0.2",
